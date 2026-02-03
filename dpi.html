@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPI Tools - Reso & DPI Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="topbar">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <span class="app-name">DPI Tools</span>
+    </header>
+
+    <main class="container">
+        <div class="glass-container">
+            <h2><i class="fas fa-crosshairs"></i> DPI Calculator</h2>
+            <p class="text-center mb-3" style="opacity: 0.8;">Hitung DPI optimal untuk device Anda</p>
+            
+            <!-- Calculator Form -->
+            <div class="input-group">
+                <label for="nativeWidth"><i class="fas fa-mobile-alt"></i> Native Width (px)</label>
+                <input type="number" id="nativeWidth" placeholder="Contoh: 1080" value="1080">
+            </div>
+            
+            <div class="input-group">
+                <label for="nativeDpi"><i class="fas fa-ruler-combined"></i> Native DPI</label>
+                <input type="number" id="nativeDpi" placeholder="Contoh: 440" value="440">
+            </div>
+            
+            <div class="input-group">
+                <label for="targetWidth"><i class="fas fa-bullseye"></i> Target Width (px)</label>
+                <input type="number" id="targetWidth" placeholder="Masukkan target width">
+            </div>
+            
+            <button id="calculateBtn" class="btn-primary" onclick="calculateDpi()">
+                <i class="fas fa-calculator"></i> Calculate DPI
+            </button>
+            
+            <!-- Result Section -->
+            <div id="resultSection" class="mt-4 hidden">
+                <div class="quick-tips">
+                    <h3><i class="fas fa-chart-line"></i> Calculation Result</h3>
+                    <div class="tips-grid">
+                        <div class="tip">
+                            <i class="fas fa-ruler"></i>
+                            <p><strong>Target DPI:</strong><br>
+                            <span id="resultDpi" style="font-size: 1.2rem; font-weight: bold;">-</span></p>
+                        </div>
+                        <div class="tip">
+                            <i class="fas fa-expand-alt"></i>
+                            <p><strong>Scale Factor:</strong><br>
+                            <span id="resultScale" style="font-size: 1.2rem; font-weight: bold;">-</span></p>
+                        </div>
+                        <div class="tip">
+                            <i class="fas fa-info-circle"></i>
+                            <p><strong>Status:</strong><br>
+                            <span id="resultStatus" style="font-size: 1.1rem;">-</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group mt-3">
+                    <label for="dpiOutput"><i class="fas fa-code"></i> ADB Command</label>
+                    <textarea id="dpiOutput" readonly placeholder="Command akan muncul di sini..."></textarea>
+                </div>
+                
+                <button id="copyDpiBtn" class="btn-success mt-2" onclick="copyDpiCommand()">
+                    <i class="fas fa-copy"></i> Copy Command
+                </button>
+            </div>
+            
+            <!-- DPI Presets -->
+            <div class="mt-4">
+                <h3><i class="fas fa-star"></i> Common DPI Presets</h3>
+                <div class="preset-grid">
+                    <div class="preset-card dpi-preset" data-dpi="320" onclick="applyDpiPreset(320)">
+                        <div class="preset-icon" style="background: linear-gradient(135deg, #6b7280, #4b5563);">
+                            <i class="fas fa-mobile"></i>
+                        </div>
+                        <h4>320 DPI</h4>
+                        <p class="preset-desc">Low-end Devices</p>
+                        <div class="preset-info">
+                            <span class="dpi-value">UI: Large</span>
+                            <span class="resolution">For Old Phones</span>
+                        </div>
+                    </div>
+                    
+                    <div class="preset-card dpi-preset" data-dpi="360" onclick="applyDpiPreset(360)">
+                        <div class="preset-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4>360 DPI</h4>
+                        <p class="preset-desc">Standard/Default</p>
+                        <div class="preset-info">
+                            <span class="dpi-value">UI: Normal</span>
+                            <span class="resolution">Most Devices</span>
+                        </div>
+                    </div>
+                    
+                    <div class="preset-card dpi-preset" data-dpi="400" onclick="applyDpiPreset(400)">
+                        <div class="preset-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4>400 DPI</h4>
+                        <p class="preset-desc">Mid-range Devices</p>
+                        <div class="preset-info">
+                            <span class="dpi-value">UI: Small</span>
+                            <span class="resolution">Better Quality</span>
+                        </div>
+                    </div>
+                    
+                    <div class="preset-card dpi-preset" data-dpi="440" onclick="applyDpiPreset(440)">
+                        <div class="preset-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h4>440 DPI</h4>
+                        <p class="preset-desc">High-end Devices</p>
+                        <div class="preset-info">
+                            <span class="dpi-value">UI: Very Small</span>
+                            <span class="resolution">Flagship Phones</span>
+                        </div>
+                    </div>
+                    
+                    <div class="preset-card dpi-preset" data-dpi="480" onclick="applyDpiPreset(480)">
+                        <div class="preset-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <h4>480 DPI</h4>
+                        <p class="preset-desc">Flagship Devices</p>
+                        <div class="preset-info">
+                            <span class="dpi-value">UI: Extreme</span>
+                            <span class="resolution">Premium Phones</span>
+                        </div>
+                    </div>
+                    
+                    <div class="preset-card dpi-preset" data-dpi="560" onclick="applyDpiPreset(560)">
+                        <div class="preset-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h4>560 DPI</h4>
+                        <p class="preset-desc">Ultra HD</p>
+                        <div class="preset-info">
+                            <span class="dpi-value">UI: Tiny</span>
+                            <span class="resolution">4K+ Displays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DPI Information -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-info-circle"></i> DPI Information</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <i class="fas fa-question-circle"></i>
+                        <p><strong>What is DPI?</strong><br>
+                        DPI = Dots Per Inch<br>
+                        Measures pixel density on screen</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-eye"></i>
+                        <p><strong>DPI Effect:</strong><br>
+                        Higher DPI = Smaller UI<br>
+                        Lower DPI = Larger UI</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-mobile-alt"></i>
+                        <p><strong>Default Values:</strong><br>
+                        Most phones: 360-440 DPI<br>
+                        Tablets: 240-320 DPI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

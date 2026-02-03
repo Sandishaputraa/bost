@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADB Helper - Reso & DPI Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="topbar">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <span class="app-name">ADB Helper</span>
+    </header>
+
+    <main class="container">
+        <div class="glass-container">
+            <h2><i class="fas fa-terminal"></i> ADB Commands Helper</h2>
+            <p class="text-center mb-3" style="opacity: 0.8;">Kumpulan command ADB yang berguna</p>
+            
+            <!-- Basic Commands -->
+            <h3 class="mt-4"><i class="fas fa-cogs"></i> Basic Commands</h3>
+            <div class="command-grid">
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Check Connected Devices</h4>
+                    </div>
+                    <div class="command-code">adb devices</div>
+                    <div class="command-desc">Cek device yang terhubung via USB/WiFi</div>
+                </div>
+                
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-terminal"></i>
+                        <h4>Enter ADB Shell</h4>
+                    </div>
+                    <div class="command-code">adb shell</div>
+                    <div class="command-desc">Masuk ke Android shell untuk eksekusi command langsung</div>
+                </div>
+                
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-power-off"></i>
+                        <h4>Reboot Device</h4>
+                    </div>
+                    <div class="command-code">adb reboot</div>
+                    <div class="command-desc">Restart device Android</div>
+                </div>
+            </div>
+            
+            <!-- Display Commands -->
+            <h3 class="mt-4"><i class="fas fa-desktop"></i> Display & Resolution</h3>
+            <div class="command-grid">
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-expand-alt"></i>
+                        <h4>Check Current Resolution</h4>
+                    </div>
+                    <div class="command-code">adb shell wm size</div>
+                    <div class="command-desc">Cek resolusi layar saat ini</div>
+                </div>
+                
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-ruler-combined"></i>
+                        <h4>Check Current DPI</h4>
+                    </div>
+                    <div class="command-code">adb shell wm density</div>
+                    <div class="command-desc">Cek DPI density saat ini</div>
+                </div>
+                
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-undo"></i>
+                        <h4>Reset Resolution & DPI</h4>
+                    </div>
+                    <div class="command-code">adb shell wm size reset
+adb shell wm density reset</div>
+                    <div class="command-desc">Reset ke pengaturan default pabrik</div>
+                </div>
+            </div>
+            
+            <!-- Media Commands -->
+            <h3 class="mt-4"><i class="fas fa-camera"></i> Screenshot & Recording</h3>
+            <div class="command-grid">
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-camera"></i>
+                        <h4>Take Screenshot</h4>
+                    </div>
+                    <div class="command-code">adb shell screencap -p /sdcard/screenshot.png</div>
+                    <div class="command-desc">Ambil screenshot dan simpan di /sdcard/screenshot.png</div>
+                </div>
+                
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-video"></i>
+                        <h4>Record Screen</h4>
+                    </div>
+                    <div class="command-code">adb shell screenrecord /sdcard/record.mp4</div>
+                    <div class="command-desc">Mulai merekam layar (tekan Ctrl+C untuk berhenti)</div>
+                </div>
+            </div>
+            
+            <!-- File Commands -->
+            <h3 class="mt-4"><i class="fas fa-file"></i> File Operations</h3>
+            <div class="command-grid">
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-download"></i>
+                        <h4>Pull File from Device</h4>
+                    </div>
+                    <div class="command-code">adb pull /sdcard/file.txt .</div>
+                    <div class="command-desc">Copy file dari device ke PC (folder saat ini)</div>
+                </div>
+                
+                <div class="command-card" onclick="selectCommand(this)">
+                    <div class="command-header">
+                        <i class="fas fa-upload"></i>
+                        <h4>Push File to Device</h4>
+                    </div>
+                    <div class="command-code">adb push file.txt /sdcard/</div>
+                    <div class="command-desc">Copy file dari PC ke device (ke folder /sdcard/)</div>
+                </div>
+            </div>
+            
+            <!-- Output Section -->
+            <div id="adbOutputSection" class="mt-4 hidden">
+                <div class="input-group">
+                    <label for="adbOutput"><i class="fas fa-code"></i> Selected Command</label>
+                    <textarea id="adbOutput" readonly placeholder="Command akan muncul di sini..."></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button id="copyAdbBtn" class="btn-success" onclick="copyAdbCommand()">
+                        <i class="fas fa-copy"></i> Copy Command
+                    </button>
+                    <button id="clearAdbBtn" class="btn-secondary" onclick="clearAdbCommand()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+            
+            <!-- ADB Information -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-info-circle"></i> ADB Information</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <i class="fas fa-laptop"></i>
+                        <p><strong>Requirements:</strong><br>
+                        • PC/Laptop dengan ADB<br>
+                        • USB Cable<br>
+                        • USB Debugging aktif</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Warning:</strong><br>
+                        • Gunakan dengan hati-hati<br>
+                        • Backup data penting<br>
+                        • Jangan gunakan command aneh</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-question-circle"></i>
+                        <p><strong>Need Help?</strong><br>
+                        • Google error messages<br>
+                        • Check USB connection<br>
+                        • Restart device & PC</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Reso & DPI Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="topbar">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <span class="app-name">About</span>
+    </header>
+
+    <main class="container">
+        <div class="glass-container">
+            <!-- App Logo/Header -->
+            <div class="text-center mb-4">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 25px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2.5rem; color: white;">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <h2>Reso & DPI Tool</h2>
+                <p style="opacity: 0.8; font-size: 1.1rem;">ADB helper tanpa root</p>
+            </div>
+            
+            <!-- App Info -->
+            <div class="quick-tips">
+                <h3><i class="fas fa-info-circle"></i> App Information</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <i class="fas fa-code"></i>
+                        <p><strong>Version:</strong><br>
+                        v1.0.0</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-calendar"></i>
+                        <p><strong>Release Date:</strong><br>
+                        February 2024</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-user"></i>
+                        <p><strong>Developer:</strong><br>
+                        Sandishaputraa</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features List -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-star"></i> Features</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <i class="fas fa-expand-alt" style="color: #3b82f6;"></i>
+                        <p><strong>Custom Resolution</strong><br>
+                        Set custom screen resolution</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-gamepad" style="color: #ef4444;"></i>
+                        <p><strong>Gaming Presets</strong><br>
+                        Optimized for PUBG, ML, FF, FF Max</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-calculator" style="color: #10b981;"></i>
+                        <p><strong>DPI Calculator</strong><br>
+                        Calculate optimal DPI</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-terminal" style="color: #8b5cf6;"></i>
+                        <p><strong>ADB Helper</strong><br>
+                        Collection of useful commands</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fab fa-android" style="color: #3ddc84;"></i>
+                        <p><strong>Android Auto</strong><br>
+                        Run ADB on Android without PC</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-mobile-alt" style="color: #f59e0b;"></i>
+                        <p><strong>No Root Needed</strong><br>
+                        Works without rooting device</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- How to Use -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-question-circle"></i> How to Use</h3>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div>
+                            <h4>Enable USB Debugging</h4>
+                            <p>Go to Settings → About Phone → Tap Build Number 7 times → Developer Options → Enable USB Debugging</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div>
+                            <h4>Connect Device</h4>
+                            <p>Connect Android device to PC via USB cable. Allow USB debugging when prompted.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div>
+                            <h4>Generate Commands</h4>
+                            <p>Use this app to generate ADB commands based on your needs.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div>
+                            <h4>Execute Commands</h4>
+                            <p>Copy the commands and execute in terminal/command prompt with ADB installed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warning & Disclaimer -->
+            <div class="quick-tips mt-4" style="border-left: 4px solid #f59e0b;">
+                <h3><i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i> Important Warning</h3>
+                <p style="opacity: 0.9; line-height: 1.6;">
+                    <strong>Disclaimer:</strong> This tool is for educational purposes only. Use at your own risk.<br><br>
+                    • Always backup your data before making changes<br>
+                    • Some apps/games may not work properly with custom resolutions<br>
+                    • If you encounter issues, reset to default using: <code>adb shell wm size reset</code><br>
+                    • The developer is not responsible for any damage to your device
+                </p>
+            </div>
+            
+            <!-- Contact & Links -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-link"></i> Links</h3>
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="window.open('https://github.com/Sandishaputraa/bost.apk', '_blank')">
+                        <i class="fab fa-github"></i> GitHub Repository
+                    </button>
+                    <button class="btn-secondary" onclick="window.open('https://developer.android.com/studio/command-line/adb', '_blank')">
+                        <i class="fas fa-book"></i> ADB Documentation
+                    </button>
+                    <button class="btn-secondary" onclick="showNotification('Email: sandishaputraa@example.com', 'info')">
+                        <i class="fas fa-envelope"></i> Contact
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Credits -->
+            <div class="text-center mt-4" style="opacity: 0.7; font-size: 0.9rem;">
+                <p>Made with <i class="fas fa-heart" style="color: #ef4444;"></i> by Sandishaputraa</p>
+                <p>Icons by Font Awesome • Gradient backgrounds</p>
+                <p>© 2024 Reso & DPI Tool. All rights reserved.</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <style>
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .step h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--light);
+        }
+        
+        .step p {
+            margin: 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+    </style>
+</body>
+</html>

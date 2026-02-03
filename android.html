@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Auto Apply - Reso & DPI Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="topbar">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <span class="app-name">Android Auto Apply</span>
+    </header>
+
+    <main class="container">
+        <div class="glass-container">
+            <h2><i class="fab fa-android"></i> ADB di Android</h2>
+            <p class="text-center mb-3" style="opacity: 0.8;">Pilih metode untuk eksekusi ADB langsung di Android</p>
+            
+            <!-- Method Selection -->
+            <div class="preset-grid">
+                <div class="preset-card method-card" data-method="termux" onclick="selectMethod(this)">
+                    <div class="preset-icon" style="background: linear-gradient(135deg, #3ddc84, #34a853);">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h4>Termux</h4>
+                    <p class="preset-desc">Linux environment di Android</p>
+                    <div class="preset-info">
+                        <span style="color: #3ddc84;">Free & Open Source</span>
+                        <span style="color: #3ddc84;">No Root Needed</span>
+                    </div>
+                </div>
+                
+                <div class="preset-card method-card" data-method="ladb" onclick="selectMethod(this)">
+                    <div class="preset-icon" style="background: linear-gradient(135deg, #4285f4, #1a73e8);">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h4>LADB</h4>
+                    <p class="preset-desc">ADB melalui WiFi</p>
+                    <div class="preset-info">
+                        <span style="color: #4285f4;">No PC Needed</span>
+                        <span style="color: #4285f4;">Paid App</span>
+                    </div>
+                </div>
+                
+                <div class="preset-card method-card" data-method="shizuku" onclick="selectMethod(this)">
+                    <div class="preset-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h4>Shizuku</h4>
+                    <p class="preset-desc">Rootless ADB shell</p>
+                    <div class="preset-info">
+                        <span style="color: #8b5cf6;">System Access</span>
+                        <span style="color: #8b5cf6;">Advanced Users</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Method Guide -->
+            <div id="methodGuide" class="mt-4 hidden">
+                <div class="quick-tips">
+                    <h3 id="guideTitle"><i class="fas fa-info-circle"></i> Method Guide</h3>
+                    <div id="guideContent">
+                        <!-- Content will be filled by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Script Generation -->
+                <div class="input-group mt-3">
+                    <label for="androidOutput"><i class="fas fa-code"></i> Generated Script</label>
+                    <textarea id="androidOutput" readonly placeholder="Script akan muncul di sini..."></textarea>
+                </div>
+                
+                <div class="btn-group mt-2">
+                    <button id="generateScriptBtn" class="btn-primary" onclick="generateAndroidScript()">
+                        <i class="fas fa-download"></i> Generate Script
+                    </button>
+                    <button id="copyAndroidBtn" class="btn-success" onclick="copyAndroidScript()">
+                        <i class="fas fa-copy"></i> Copy Script
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Android Requirements -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-requirements"></i> Requirements</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <i class="fas fa-mobile-alt"></i>
+                        <p><strong>For Termux:</strong><br>
+                        • Install Termux<br>
+                        • Install ADB package<br>
+                        • USB OTG cable</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-wifi"></i>
+                        <p><strong>For LADB:</strong><br>
+                        • Buy LADB app<br>
+                        • Enable Wireless Debugging<br>
+                        • Same WiFi network</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-crown"></i>
+                        <p><strong>For Shizuku:</strong><br>
+                        • Install Shizuku<br>
+                        • Start via ADB (PC once)<br>
+                        • Install Shizuku in Termux</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step by Step Guide -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-list-ol"></i> Step by Step (Termux)</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <div class="step-number">1</div>
+                        <p><strong>Install Termux</strong><br>
+                        Download from F-Droid (recommended)</p>
+                    </div>
+                    <div class="tip">
+                        <div class="step-number">2</div>
+                        <p><strong>Update & Install</strong><br>
+                        <code>pkg update && pkg upgrade</code><br>
+                        <code>pkg install android-tools</code></p>
+                    </div>
+                    <div class="tip">
+                        <div class="step-number">3</div>
+                        <p><strong>Enable Debugging</strong><br>
+                        On target device:<br>
+                        Settings → Developer Options → USB Debugging</p>
+                    </div>
+                    <div class="tip">
+                        <div class="step-number">4</div>
+                        <p><strong>Run Script</strong><br>
+                        <code>chmod +x script.sh</code><br>
+                        <code>./script.sh</code></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Download Links -->
+            <div class="quick-tips mt-4">
+                <h3><i class="fas fa-download"></i> Download Links</h3>
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="window.open('https://f-droid.org/en/packages/com.termux/', '_blank')">
+                        <i class="fas fa-download"></i> Termux (F-Droid)
+                    </button>
+                    <button class="btn-secondary" onclick="window.open('https://play.google.com/store/apps/details?id=com.ttxapps.ladb', '_blank')">
+                        <i class="fab fa-google-play"></i> LADB (Play Store)
+                    </button>
+                    <button class="btn-secondary" onclick="window.open('https://github.com/RikkaApps/Shizuku', '_blank')">
+                        <i class="fab fa-github"></i> Shizuku (GitHub)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <style>
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .tip {
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .tip p {
+            margin: 0;
+        }
+    </style>
+</body>
+</html>

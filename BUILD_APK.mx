@@ -1,0 +1,12 @@
+# Cara Build APK Reso & DPI Tool
+
+## Prerequisites:
+1. Node.js (v14+)
+2. Java JDK 11+
+3. Android Studio
+4. Android SDK
+
+## Step 1: Install Dependencies
+```bash
+npm install
+npm install @capacitor/cli @capacitor/core @capacitor/android
