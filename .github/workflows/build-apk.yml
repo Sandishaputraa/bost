@@ -1,8 +1,6 @@
 name: Build Android APK
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -19,23 +17,23 @@ jobs:
     
     - name: Install dependencies
       run: |
-        npm ci  # menggunakan package-lock.json
-        
+        npm install
+    
     - name: Build APK
       run: |
-        # Sync dengan folder www yang sudah ada
+        # Sync Capacitor
         npx cap sync
         
-        # Build APK
+        # Build
         cd android
         chmod +x gradlew
         ./gradlew assembleDebug
         
-        # List APK yang dibuat
-        find . -name "*.apk" -type f | head -5
+        # List APKs
+        find . -name "*.apk" -type f
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: bost-tool-apk
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+        name: bost-app
+        path: android/app/build/outputs/apk/debug/*.apk
