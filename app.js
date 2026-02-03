@@ -1,5 +1,3 @@
-[file name]: app.js
-[file content begin]
 // ============================================
 // CORE APP FUNCTIONS - ALL IN ONE FILE
 // ============================================
@@ -10,13 +8,15 @@ let selectedPreset = null;
 let selectedCommand = null;
 
 // ============================================
-// 1. NOTIFICATION SYSTEM
+// 1. NOTIFICATION SYSTEM - FIXED
 // ============================================
 
 function showNotification(message, type = 'info', duration = 3000) {
     // Remove existing notification
     const existing = document.querySelector('.notification');
-    if (existing) existing.remove();
+    if (existing) {
+        existing.remove();
+    }
     
     // Create notification element
     const notification = document.createElement('div');
@@ -36,9 +36,15 @@ function showNotification(message, type = 'info', duration = 3000) {
     // Add to document
     document.body.appendChild(notification);
     
+    // Trigger animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
     // Auto remove after duration
     setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        notification.classList.remove('show');
+        notification.classList.add('hide');
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.parentNode.removeChild(notification);
@@ -48,7 +54,7 @@ function showNotification(message, type = 'info', duration = 3000) {
 }
 
 // ============================================
-// 2. CLIPBOARD FUNCTIONS
+// 2. CLIPBOARD FUNCTIONS - IMPROVED
 // ============================================
 
 async function copyToClipboard(text) {
@@ -69,22 +75,21 @@ async function copyToClipboard(text) {
         }
     } catch (error) {
         console.error('Copy failed:', error);
-        showNotification('❌ Gagal menyalin', 'error');
-        return false;
+        return copyFallback(text);
     }
 }
 
 function copyFallback(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.left = '-9999px';
-    textarea.style.top = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    textarea.setSelectionRange(0, 99999);
-    
     try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+        
         const successful = document.execCommand('copy');
         document.body.removeChild(textarea);
         
@@ -96,40 +101,87 @@ function copyFallback(text) {
             return false;
         }
     } catch (error) {
-        document.body.removeChild(textarea);
+        console.error('Fallback copy failed:', error);
         showNotification('❌ Browser tidak mendukung salin', 'error');
         return false;
     }
 }
 
 // ============================================
-// 3. PAGE INITIALIZATION
+// 3. PAGE INITIALIZATION - FIXED
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('App initialized');
     
+    // Setup mobile menu
+    setupMobileMenu();
+    
     // Setup based on current page
     const path = window.location.pathname.toLowerCase();
+    const page = path.split('/').pop() || 'index.html';
     
-    if (path.includes('reso.html')) {
+    if (page.includes('reso')) {
         setupResolutionPage();
-    } else if (path.includes('preset.html')) {
+    } else if (page.includes('preset')) {
         setupPresetPage();
-    } else if (path.includes('dpi.html')) {
+    } else if (page.includes('dpi')) {
         setupDpiPage();
-    } else if (path.includes('adb.html')) {
+    } else if (page.includes('adb')) {
         setupAdbPage();
-    } else if (path.includes('android.html')) {
+    } else if (page.includes('android')) {
         setupAndroidPage();
+    } else {
+        setupHomePage();
     }
     
     // Setup common features
     setupCommonFeatures();
 });
 
+function setupMobileMenu() {
+    const menuBtn = document.querySelector('.menu');
+    const closeBtn = document.querySelector('.menu-close');
+    const overlay = document.querySelector('.menu-overlay');
+    
+    if (menuBtn && overlay) {
+        menuBtn.addEventListener('click', () => {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+    
+    if (closeBtn && overlay) {
+        closeBtn.addEventListener('click', () => {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    }
+    
+    // Close menu when clicking outside
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+}
+
+function setupHomePage() {
+    console.log('Setting up Home page');
+    
+    // Add animation to feature cards
+    const cards = document.querySelectorAll('.feature-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-in');
+    });
+}
+
 // ============================================
-// 4. COMMON FEATURES
+// 4. COMMON FEATURES - IMPROVED
 // ============================================
 
 function setupCommonFeatures() {
@@ -158,7 +210,7 @@ function setupBackButtons() {
             document.body.style.transition = 'all 0.3s ease';
             
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.history.back();
             }, 300);
         });
     });
@@ -167,7 +219,7 @@ function setupBackButtons() {
 function setupRippleEffects() {
     document.addEventListener('click', function(e) {
         const button = e.target.closest('button');
-        if (!button) return;
+        if (!button || button.classList.contains('no-ripple')) return;
         
         // Create ripple element
         const ripple = document.createElement('span');
@@ -200,26 +252,11 @@ function setupRippleEffects() {
             }
         }, 600);
     });
-    
-    // Add ripple animation CSS
-    if (!document.querySelector('#ripple-styles')) {
-        const style = document.createElement('style');
-        style.id = 'ripple-styles';
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
 }
 
 function setupEnterKey() {
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
             const active = document.activeElement;
             
             // Generate resolution on enter
@@ -242,33 +279,19 @@ function setupEnterKey() {
 
 function setupOutputScroll() {
     // Auto scroll output into view when updated
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                const output = mutation.target;
-                if (output.value && output.value.trim()) {
-                    output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
-        });
-    });
-    
-    // Observe all output textareas
-    const outputs = ['output', 'presetOutput', 'dpiOutput', 'adbOutput']
+    const outputs = ['output', 'presetOutput', 'dpiOutput', 'adbOutput', 'androidOutput']
         .map(id => document.getElementById(id))
         .filter(Boolean);
     
     outputs.forEach(output => {
-        observer.observe(output, { 
-            characterData: true, 
-            childList: true, 
-            subtree: true 
+        output.addEventListener('input', function() {
+            this.scrollTop = this.scrollHeight;
         });
     });
 }
 
 // ============================================
-// 5. RESOLUTION PAGE FUNCTIONS
+// 5. RESOLUTION PAGE FUNCTIONS - FIXED
 // ============================================
 
 function setupResolutionPage() {
@@ -277,50 +300,71 @@ function setupResolutionPage() {
     // Auto focus first input
     const widthInput = document.getElementById('lebar');
     if (widthInput) {
-        widthInput.focus();
+        setTimeout(() => {
+            widthInput.focus();
+            widthInput.select();
+        }, 300);
+        
         widthInput.addEventListener('focus', function() {
             this.select();
         });
     }
     
     // Setup generate button
-    const generateBtn = document.querySelector('button[onclick*="generate"]');
+    const generateBtn = document.querySelector('button[onclick*="generate"], button:has(i.fa-bolt)');
     if (generateBtn) {
         generateBtn.addEventListener('click', generateResolution);
     }
     
     // Setup copy button
-    const copyBtn = document.querySelector('button[onclick*="copy"]');
+    const copyBtn = document.querySelector('button[onclick*="copy"], button:has(i.fa-copy)');
     if (copyBtn) {
         copyBtn.addEventListener('click', copyResolution);
     }
 }
 
 function generateResolution() {
-    const width = document.getElementById('lebar')?.value;
-    const height = document.getElementById('tinggi')?.value;
-    const autoDpi = document.getElementById('autoDpi')?.checked;
+    const widthInput = document.getElementById('lebar');
+    const heightInput = document.getElementById('tinggi');
+    const autoDpiCheckbox = document.getElementById('autoDpi');
     
-    if (!width || !height) {
-        showNotification('❌ Masukkan lebar dan tinggi', 'error');
+    if (!widthInput || !heightInput) {
+        showNotification('❌ Input tidak ditemukan', 'error');
+        return;
+    }
+    
+    const width = widthInput.value.trim();
+    const height = heightInput.value.trim();
+    const autoDpi = autoDpiCheckbox ? autoDpiCheckbox.checked : false;
+    
+    if (!width || !height || isNaN(width) || isNaN(height)) {
+        showNotification('❌ Masukkan lebar dan tinggi yang valid', 'error');
+        return;
+    }
+    
+    const widthNum = parseInt(width);
+    const heightNum = parseInt(height);
+    
+    if (widthNum <= 0 || heightNum <= 0) {
+        showNotification('❌ Nilai harus lebih besar dari 0', 'error');
         return;
     }
     
     // Calculate auto DPI if enabled
     let dpi = '';
     if (autoDpi) {
-        const minDimension = Math.min(width, height);
-        dpi = Math.round((minDimension / 360) * 440);
+        const minDimension = Math.min(widthNum, heightNum);
+        dpi = Math.max(120, Math.min(640, Math.round((minDimension / 360) * 440)));
     }
     
     // Build command
     let cmd = `# Custom Resolution\n`;
-    cmd += `# Width: ${width}px | Height: ${height}px\n\n`;
-    cmd += `adb shell wm size ${width}x${height}\n`;
+    cmd += `# Width: ${widthNum}px | Height: ${heightNum}px\n\n`;
+    cmd += `adb shell wm size ${widthNum}x${heightNum}\n`;
     
     if (autoDpi) {
         cmd += `adb shell wm density ${dpi}\n`;
-        cmd += `# Auto DPI: ${dpi}\n`;
+        cmd += `# Auto DPI: ${dpi} (calculated)\n`;
     }
     
     cmd += `\n# Reset to default:\n`;
@@ -336,17 +380,17 @@ function generateResolution() {
         // Add animation
         output.style.animation = 'none';
         setTimeout(() => {
-            output.style.animation = 'pulse 0.5s';
+            output.style.animation = 'pulse 0.5s ease';
         }, 10);
         
-        showNotification('✅ Command generated', 'success');
+        showNotification(`✅ Command generated: ${widthNum}x${heightNum}`, 'success');
     }
 }
 
 function copyResolution() {
     const output = document.getElementById('output');
     if (!output || !output.value.trim()) {
-        showNotification('❌ Generate command dulu', 'error');
+        showNotification('❌ Generate command terlebih dahulu', 'error');
         return;
     }
     
@@ -354,7 +398,7 @@ function copyResolution() {
 }
 
 // ============================================
-// 6. PRESET PAGE FUNCTIONS
+// 6. PRESET PAGE FUNCTIONS - FIXED
 // ============================================
 
 function setupPresetPage() {
@@ -369,16 +413,16 @@ function setupPresetPage() {
     });
     
     // Setup copy button
-    const copyBtn = document.getElementById('copyPresetBtn');
+    const copyBtn = document.querySelector('#copyPresetBtn, button:has(i.fa-copy)');
     if (copyBtn) {
         copyBtn.addEventListener('click', copyPresetCommand);
     }
     
-    // Auto select first preset
+    // Auto select first preset if none selected
     if (presetCards.length > 0 && !selectedPreset) {
         setTimeout(() => {
             selectPreset(presetCards[0]);
-        }, 500);
+        }, 100);
     }
 }
 
@@ -399,17 +443,23 @@ function selectPreset(cardElement) {
     const desc = cardElement.querySelector('.preset-desc')?.textContent || '';
     
     // Extract numbers from resolution and dpi
-    const resMatch = resolution.match(/\d+x\d+/);
-    const dpiMatch = dpi.match(/\d+/);
+    const resMatch = resolution.match(/(\d+)x(\d+)/);
+    const dpiMatch = dpi.match(/(\d+)/);
     
     if (resMatch && dpiMatch) {
-        generatePresetCommand(resMatch[0], dpiMatch[0], title, desc);
+        const width = resMatch[1];
+        const height = resMatch[2];
+        const density = dpiMatch[0];
+        
+        generatePresetCommand(`${width}x${height}`, density, title, desc);
         showNotification(`✅ ${title} selected`, 'success');
+    } else {
+        showNotification('❌ Format preset tidak valid', 'error');
     }
 }
 
 function generatePresetCommand(resolution, dpi, title, desc) {
-    const cmd = `# ${title}\n`;
+    let cmd = `# ${title}\n`;
     cmd += `# ${desc}\n`;
     cmd += `# Resolution: ${resolution} | DPI: ${dpi}\n\n`;
     cmd += `adb shell wm size ${resolution}\n`;
@@ -427,6 +477,7 @@ function generatePresetCommand(resolution, dpi, title, desc) {
         const outputSection = document.getElementById('outputSection');
         if (outputSection) {
             outputSection.classList.remove('hidden');
+            outputSection.style.animation = 'fadeInUp 0.3s ease';
         }
     }
 }
@@ -434,7 +485,7 @@ function generatePresetCommand(resolution, dpi, title, desc) {
 function copyPresetCommand() {
     const output = document.getElementById('presetOutput');
     if (!output || !output.value.trim()) {
-        showNotification('❌ Pilih preset dulu', 'error');
+        showNotification('❌ Pilih preset terlebih dahulu', 'error');
         return;
     }
     
@@ -442,20 +493,20 @@ function copyPresetCommand() {
 }
 
 // ============================================
-// 7. DPI PAGE FUNCTIONS
+// 7. DPI PAGE FUNCTIONS - FIXED
 // ============================================
 
 function setupDpiPage() {
     console.log('Setting up DPI page');
     
     // Setup calculate button
-    const calcBtn = document.getElementById('calculateBtn');
+    const calcBtn = document.querySelector('#calculateBtn, button:has(i.fa-calculator)');
     if (calcBtn) {
         calcBtn.addEventListener('click', calculateDpi);
     }
     
     // Setup copy button
-    const copyBtn = document.getElementById('copyDpiBtn');
+    const copyBtn = document.querySelector('#copyDpiBtn, button:has(i.fa-copy)');
     if (copyBtn) {
         copyBtn.addEventListener('click', copyDpiCommand);
     }
@@ -475,7 +526,10 @@ function setupDpiPage() {
     // Auto focus
     const targetWidth = document.getElementById('targetWidth');
     if (targetWidth) {
-        targetWidth.focus();
+        setTimeout(() => {
+            targetWidth.focus();
+            targetWidth.select();
+        }, 300);
     }
 }
 
@@ -485,20 +539,26 @@ function calculateDpi() {
     const targetWidth = document.getElementById('targetWidth')?.value;
     
     if (!nativeWidth || !nativeDpi || !targetWidth) {
-        showNotification('❌ Isi semua field', 'error');
+        showNotification('❌ Isi semua field terlebih dahulu', 'error');
         return;
     }
     
-    // Calculate
+    // Parse values
     const nw = parseFloat(nativeWidth);
     const nd = parseFloat(nativeDpi);
     const tw = parseFloat(targetWidth);
     
-    if (nw <= 0 || nd <= 0 || tw <= 0) {
-        showNotification('❌ Nilai harus > 0', 'error');
+    if (isNaN(nw) || isNaN(nd) || isNaN(tw)) {
+        showNotification('❌ Masukkan angka yang valid', 'error');
         return;
     }
     
+    if (nw <= 0 || nd <= 0 || tw <= 0) {
+        showNotification('❌ Nilai harus lebih besar dari 0', 'error');
+        return;
+    }
+    
+    // Calculate
     const calculatedDpi = Math.round((tw / nw) * nd);
     const scaleFactor = (tw / nw).toFixed(2);
     
@@ -514,21 +574,24 @@ function calculateDpi() {
     let status = '';
     let statusColor = '#3b82f6';
     
-    if (calculatedDpi < 300) {
-        status = 'Very Low (UI Besar)';
+    if (calculatedDpi < 200) {
+        status = 'Sangat Rendah (UI Sangat Besar)';
         statusColor = '#ef4444';
-    } else if (calculatedDpi < 350) {
-        status = 'Low (UI Agak Besar)';
+    } else if (calculatedDpi < 300) {
+        status = 'Rendah (UI Besar)';
         statusColor = '#f59e0b';
+    } else if (calculatedDpi < 350) {
+        status = 'Sedang (UI Normal)';
+        statusColor = '#3b82f6';
     } else if (calculatedDpi < 420) {
         status = 'Optimal (Standard)';
         statusColor = '#10b981';
     } else if (calculatedDpi < 500) {
-        status = 'High (UI Kecil)';
-        statusColor = '#3b82f6';
-    } else {
-        status = 'Very High (UI Sangat Kecil)';
+        status = 'Tinggi (UI Kecil)';
         statusColor = '#8b5cf6';
+    } else {
+        status = 'Sangat Tinggi (UI Sangat Kecil)';
+        statusColor = '#ec4899';
     }
     
     if (resultStatus) {
@@ -537,7 +600,7 @@ function calculateDpi() {
     }
     
     // Generate command
-    const cmd = `# DPI Calculation Result\n`;
+    let cmd = `# DPI Calculation Result\n`;
     cmd += `# Native: ${nw}px @ ${nd}dpi\n`;
     cmd += `# Target: ${tw}px @ ${calculatedDpi}dpi\n`;
     cmd += `# Scale Factor: ${scaleFactor}x\n\n`;
@@ -554,18 +617,22 @@ function calculateDpi() {
         const resultSection = document.getElementById('resultSection');
         if (resultSection) {
             resultSection.classList.remove('hidden');
+            resultSection.style.animation = 'fadeInUp 0.3s ease';
         }
         
-        showNotification('✅ DPI calculated', 'success');
+        showNotification('✅ DPI berhasil dihitung', 'success');
     }
 }
 
 function applyDpiPreset(dpiValue) {
     const dpi = parseInt(dpiValue);
-    if (isNaN(dpi)) return;
+    if (isNaN(dpi) || dpi <= 0) {
+        showNotification('❌ DPI tidak valid', 'error');
+        return;
+    }
     
     // Generate command for preset
-    const cmd = `# DPI Preset: ${dpi} DPI\n`;
+    let cmd = `# DPI Preset: ${dpi} DPI\n`;
     cmd += `# Recommended for: ${getDpiDescription(dpi)}\n\n`;
     cmd += `adb shell wm density ${dpi}\n\n`;
     cmd += `# Reset: adb shell wm density reset`;
@@ -576,7 +643,7 @@ function applyDpiPreset(dpiValue) {
         currentCommands = cmd;
         
         // Update result display
-        const resultDpi = document.getElementById('resultDpi');
+        const resultDpi = document.getElemenById('resultDpi');
         const resultScale = document.getElementById('resultScale');
         const resultStatus = document.getElementById('resultStatus');
         
@@ -591,29 +658,35 @@ function applyDpiPreset(dpiValue) {
         const resultSection = document.getElementById('resultSection');
         if (resultSection) {
             resultSection.classList.remove('hidden');
+            resultSection.style.animation = 'fadeInUp 0.3s ease';
         }
         
-        showNotification(`✅ DPI ${dpi} selected`, 'success');
+        showNotification(`✅ DPI ${dpi} dipilih`, 'success');
     }
 }
 
 function getDpiDescription(dpi) {
     const descriptions = {
-        320: 'Low-end Devices',
-        360: 'Standard/Default',
-        400: 'Mid-range Devices',
-        440: 'High-end Devices',
-        480: 'Flagship Devices',
-        560: 'Ultra HD/Extreme'
+        120: 'Perangkat sangat lama',
+        160: 'Perangkat low-end lama',
+        240: 'Perangkat low-end',
+        280: 'Perangkat entry-level',
+        320: 'Perangkat menengah',
+        360: 'Standar/default',
+        400: 'Perangkat mid-range',
+        440: 'Perangkat high-end',
+        480: 'Perangkat flagship',
+        560: 'Ultra HD/Extreme',
+        640: 'Maximum limit'
     };
     
-    return descriptions[dpi] || 'Custom DPI';
+    return descriptions[dpi] || 'DPI Kustom';
 }
 
 function copyDpiCommand() {
     const output = document.getElementById('dpiOutput');
     if (!output || !output.value.trim()) {
-        showNotification('❌ Hitung DPI dulu', 'error');
+        showNotification('❌ Hitung DPI terlebih dahulu', 'error');
         return;
     }
     
@@ -621,7 +694,7 @@ function copyDpiCommand() {
 }
 
 // ============================================
-// 8. ADB HELPER PAGE FUNCTIONS
+// 8. ADB HELPER PAGE FUNCTIONS - FIXED
 // ============================================
 
 function setupAdbPage() {
@@ -636,13 +709,13 @@ function setupAdbPage() {
     });
     
     // Setup copy button
-    const copyBtn = document.getElementById('copyAdbBtn');
+    const copyBtn = document.querySelector('#copyAdbBtn, button:has(i.fa-copy)');
     if (copyBtn) {
         copyBtn.addEventListener('click', copyAdbCommand);
     }
     
     // Setup clear button
-    const clearBtn = document.getElementById('clearAdbBtn');
+    const clearBtn = document.querySelector('#clearAdbBtn, button:has(i.fa-trash)');
     if (clearBtn) {
         clearBtn.addEventListener('click', clearAdbCommand);
     }
@@ -651,7 +724,7 @@ function setupAdbPage() {
     if (commandCards.length > 0 && !selectedCommand) {
         setTimeout(() => {
             selectCommand(commandCards[0]);
-        }, 500);
+        }, 100);
     }
 }
 
@@ -671,14 +744,14 @@ function selectCommand(cardElement) {
     const desc = cardElement.querySelector('.command-desc')?.textContent || '';
     
     // Generate output
-    const output = `# ${title}\n`;
+    let output = `# ${title}\n`;
     output += `# ${desc}\n\n`;
     output += `${code}\n\n`;
-    output += `# How to use:\n`;
-    output += `# 1. Connect device via USB/WiFi ADB\n`;
-    output += `# 2. Open terminal/command prompt\n`;
-    output += `# 3. Paste the command above\n`;
-    output += `# 4. Press Enter to execute`;
+    output += `# Cara penggunaan:\n`;
+    output += `# 1. Hubungkan device via USB/WiFi ADB\n`;
+    output += `# 2. Buka terminal/command prompt\n`;
+    output += `# 3. Tempel command di atas\n`;
+    output += `# 4. Tekan Enter untuk mengeksekusi`;
     
     const adbOutput = document.getElementById('adbOutput');
     if (adbOutput) {
@@ -689,16 +762,17 @@ function selectCommand(cardElement) {
         const outputSection = document.getElementById('adbOutputSection');
         if (outputSection) {
             outputSection.classList.remove('hidden');
+            outputSection.style.animation = 'fadeInUp 0.3s ease';
         }
         
-        showNotification(`✅ ${title} selected`, 'success');
+        showNotification(`✅ ${title} dipilih`, 'success');
     }
 }
 
 function copyAdbCommand() {
     const output = document.getElementById('adbOutput');
     if (!output || !output.value.trim()) {
-        showNotification('❌ Pilih command dulu', 'error');
+        showNotification('❌ Pilih command terlebih dahulu', 'error');
         return;
     }
     
@@ -724,11 +798,11 @@ function clearAdbCommand() {
         outputSection.classList.add('hidden');
     }
     
-    showNotification('🗑️ Output cleared', 'info');
+    showNotification('🗑️ Output berhasil dihapus', 'info');
 }
 
 // ============================================
-// 9. ANDROID PAGE FUNCTIONS
+// 9. ANDROID PAGE FUNCTIONS - FIXED
 // ============================================
 
 function setupAndroidPage() {
@@ -743,15 +817,22 @@ function setupAndroidPage() {
     });
     
     // Setup generate script button
-    const genBtn = document.getElementById('generateScriptBtn');
+    const genBtn = document.querySelector('#generateScriptBtn, button:has(i.fa-code)');
     if (genBtn) {
         genBtn.addEventListener('click', generateAndroidScript);
     }
     
     // Setup copy button
-    const copyBtn = document.getElementById('copyAndroidBtn');
+    const copyBtn = document.querySelector('#copyAndroidBtn, button:has(i.fa-copy)');
     if (copyBtn) {
         copyBtn.addEventListener('click', copyAndroidScript);
+    }
+    
+    // Auto select first method
+    if (methodCards.length > 0) {
+        setTimeout(() => {
+            selectMethod(methodCards[0]);
+        }, 100);
     }
 }
 
@@ -770,7 +851,7 @@ function selectMethod(cardElement) {
     
     // Show guide
     showMethodGuide(method);
-    showNotification(`✅ ${title} selected`, 'success');
+    showNotification(`✅ ${title} dipilih`, 'success');
 }
 
 function showMethodGuide(method) {
@@ -779,47 +860,60 @@ function showMethodGuide(method) {
     
     const guides = {
         termux: `
-            <h4>Termux Method</h4>
-            <p>Run ADB commands directly on Android using Termux.</p>
+            <h4><i class="fas fa-terminal"></i> Metode Termux</h4>
+            <p>Jalankan command ADB langsung di Android menggunakan Termux.</p>
             
             <div class="steps">
-                <h5>Steps:</h5>
+                <h5>Langkah-langkah:</h5>
                 <ol>
-                    <li>Install Termux from F-Droid or Play Store</li>
+                    <li>Install Termux dari F-Droid atau Play Store</li>
+                    <li>Update package: <code>pkg update && pkg upgrade</code></li>
                     <li>Install ADB: <code>pkg install android-tools</code></li>
-                    <li>Enable USB Debugging on target device</li>
-                    <li>Connect devices via USB OTG</li>
-                    <li>Run the generated script</li>
+                    <li>Aktifkan USB Debugging di device target</li>
+                    <li>Hubungkan device via USB OTG</li>
+                    <li>Jalankan script yang digenerate</li>
                 </ol>
+            </div>
+            
+            <div class="note">
+                <strong>Catatan:</strong> Diperlukan kabel USB OTG dan akses ADB sudah diaktifkan.
             </div>
         `,
         ladb: `
-            <h4>LADB Method</h4>
-            <p>Use wireless ADB debugging via LADB app.</p>
+            <h4><i class="fas fa-wifi"></i> Metode LADB</h4>
+            <p>Gunakan debugging ADB wireless via aplikasi LADB.</p>
             
             <div class="steps">
-                <h5>Steps:</h5>
+                <h5>Langkah-langkah:</h5>
                 <ol>
-                    <li>Install LADB from Play Store (paid)</li>
-                    <li>Enable Wireless Debugging in Developer Options</li>
-                    <li>Note the IP address and port</li>
-                    <li>Connect in LADB app</li>
-                    <li>Run commands directly in LADB</li>
+                    <li>Install LADB dari Play Store (berbayar)</li>
+                    <li>Aktifkan Wireless Debugging di Developer Options</li>
+                    <li>Catat alamat IP dan port yang muncul</li>
+                    <li>Hubungkan di aplikasi LADB</li>
+                    <li>Jalankan command langsung di LADB</li>
                 </ol>
+            </div>
+            
+            <div class="note">
+                <strong>Catatan:</strong> Metode ini memerlukan koneksi WiFi yang stabil.
             </div>
         `,
         shizuku: `
-            <h4>Shizuku Method</h4>
-            <p>Rootless ADB execution via Shizuku framework.</p>
+            <h4><i class="fas fa-cogs"></i> Metode Shizuku</h4>
+            <p>Eksekusi ADB tanpa root via framework Shizuku.</p>
             
             <div class="steps">
-                <h5>Steps:</h5>
+                <h5>Langkah-langkah:</h5>
                 <ol>
-                    <li>Install Shizuku from GitHub</li>
-                    <li>Start Shizuku via ADB (need PC once)</li>
-                    <li>Install Shizuku in Termux</li>
-                    <li>Run commands with <code>shizuku exec</code></li>
+                    <li>Install Shizuku dari GitHub (shizuku.rikka.app)</li>
+                    <li>Start Shizuku via ADB (perlukan PC sekali saja)</li>
+                    <li>Install Shizuku di Termux: <code>pkg install shizuku</code></li>
+                    <li>Jalankan command dengan <code>shizuku exec</code> prefix</li>
                 </ol>
+            </div>
+            
+            <div class="note">
+                <strong>Catatan:</strong> Lebih kompleks tapi powerful untuk advanced users.
             </div>
         `
     };
@@ -827,60 +921,81 @@ function showMethodGuide(method) {
     const guideContent = document.getElementById('guideContent');
     if (guideContent) {
         guideContent.innerHTML = guides[method] || guides.termux;
+        guideSection.classList.remove('hidden');
+        guideSection.style.animation = 'fadeInUp 0.3s ease';
     }
-    
-    guideSection.classList.remove('hidden');
 }
 
 function generateAndroidScript() {
-    // Get current commands
-    const commands = currentCommands || 
-                    document.getElementById('output')?.value ||
-                    document.getElementById('presetOutput')?.value ||
-                    document.getElementById('dpiOutput')?.value ||
-                    document.getElementById('adbOutput')?.value;
+    // Get current commands from any output
+    let commands = '';
+    const outputIds = ['output', 'presetOutput', 'dpiOutput', 'adbOutput'];
     
-    if (!commands || commands.trim() === '') {
-        showNotification('❌ Generate commands dulu', 'error');
+    for (const id of outputIds) {
+        const element = document.getElementById(id);
+        if (element && element.value.trim()) {
+            commands = element.value;
+            break;
+        }
+    }
+    
+    if (!commands.trim()) {
+        showNotification('❌ Generate command terlebih dahulu', 'error');
         return;
     }
     
-    // Filter ADB commands
+    // Filter ADB commands (remove comments)
     const adbCommands = commands.split('\n')
-        .filter(line => line.trim() && !line.trim().startsWith('#'))
+        .filter(line => {
+            const trimmed = line.trim();
+            return trimmed && !trimmed.startsWith('#');
+        })
         .map(line => line.trim())
         .join('\n');
     
+    if (!adbCommands) {
+        showNotification('❌ Tidak ada command ADB yang valid', 'error');
+        return;
+    }
+    
     // Generate Termux script
-    const script = `#!/data/data/com.termux/files/usr/bin/bash
+    let script = `#!/data/data/com.termux/files/usr/bin/bash
 echo "==========================================="
 echo "    ADB EXECUTOR SCRIPT FOR TERMUX"
 echo "==========================================="
 echo ""
-echo "Installing required packages..."
+echo "Menginstall package yang diperlukan..."
 pkg install android-tools -y
 echo ""
-echo "Checking connection..."
+echo "Memeriksa koneksi..."
 adb devices
 echo ""
-echo "Executing commands..."
+echo "Menjalankan command..."
 ${adbCommands}
 echo ""
-echo "✅ Done!"
+echo "✅ Selesai!"
 echo "==========================================="
-read -p "Press Enter to exit..."`;
-    
+read -p "Tekan Enter untuk keluar..."`;
+
     const output = document.getElementById('androidOutput');
     if (output) {
         output.value = script;
-        showNotification('✅ Script generated for Termux', 'success');
+        
+        // Show output section
+        const outputSection = document.getElementById('androidOutputSection');
+        if (outputSection) {
+            outputSection.classList.remove('hidden');
+            outputSection.style.animation = 'fadeInUp 0.3s ease';
+        }
+        
+        showNotification('✅ Script berhasil digenerate untuk Termux', 'success');
     }
 }
 
 function copyAndroidScript() {
     const output = document.getElementById('androidOutput');
     if (!output || !output.value.trim()) {
-        showNotification('❌ Generate script dulu', 'error');
+        showNotification('❌ Generate script terlebih dahulu', 'error');
         return;
     }
     
@@ -892,38 +1007,52 @@ function copyAndroidScript() {
 // ============================================
 
 function clearOutput() {
-    const outputs = ['output', 'presetOutput', 'dpiOutput', 'adbOutput', 'androidOutput']
-        .map(id => document.getElementById(id))
-        .filter(Boolean);
+    // Clear all outputs
+    const outputIds = ['output', 'presetOutput', 'dpiOutput', 'adbOutput', 'androidOutput'];
     
-    outputs.forEach(output => {
-        output.value = '';
+    outputIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = '';
+        }
     });
     
     // Clear selections
-    document.querySelectorAll('.preset-card.active, .command-card.active').forEach(el => {
+    document.querySelectorAll('.preset-card.active, .command-card.active, .method-card.active').forEach(el => {
         el.classList.remove('active');
     });
     
+    // Hide output sections
+    document.querySelectorAll('[id$="Section"]').forEach(section => {
+        section.classList.add('hidden');
+    });
+    
+    // Reset global variables
     selectedPreset = null;
     selectedCommand = null;
     currentCommands = '';
     
-    showNotification('🗑️ All outputs cleared', 'info');
+    showNotification('🗑️ Semua output berhasil dihapus', 'info');
 }
 
 function downloadFile(filename, content) {
-    const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    try {
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        showNotification(`✅ File ${filename} berhasil diunduh`, 'success');
+    } catch (error) {
+        showNotification('❌ Gagal mengunduh file', 'error');
+        console.error('Download failed:', error);
+    }
 }
 
 // ============================================
-// EXPORT FUNCTIONS TO GLOBAL SCOPE
+// 11. EXPORT FUNCTIONS TO GLOBAL SCOPE
 // ============================================
 
 // Core functions
@@ -957,4 +1086,5 @@ window.copyAndroidScript = copyAndroidScript;
 window.clearOutput = clearOutput;
 window.downloadFile = downloadFile;
 
-console.log('All app functions loaded successfully');
+console.log('✅ All app functions loaded successfully');t
+       
