@@ -10,28 +10,32 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
     
-    - name: Setup Java
-      uses: actions/setup-java@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        java-version: '17'
-        distribution: 'temurin'
+        node-version: '18'
     
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-    
-    - name: Build APK with Capacitor
+    - name: Install dependencies
       run: |
-        npm install
-        npx cap sync android
+        npm ci  # menggunakan package-lock.json
+        
+    - name: Build APK
+      run: |
+        # Sync dengan folder www yang sudah ada
+        npx cap sync
+        
+        # Build APK
         cd android
         chmod +x gradlew
         ./gradlew assembleDebug
+        
+        # List APK yang dibuat
+        find . -name "*.apk" -type f | head -5
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: bost-app-debug
-        path: android/app/build/outputs/apk/debug/*.apk
+        name: bost-tool-apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
