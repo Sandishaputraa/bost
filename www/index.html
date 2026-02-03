@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reso & DPI Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+    <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+    <header class="topbar">
+        <span class="app-name">
+            <i class="fas fa-sliders-h" style="margin-right: 10px;"></i>
+            Reso & DPI Tool
+        </span>
+        <span class="menu" onclick="toggleMenu()">☰</span>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-content">
+            <h3><i class="fas fa-bars" style="margin-right: 10px;"></i>Menu</h3>
+            <a href="index.html" class="menu-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="reso.html" class="menu-item">
+                <i class="fas fa-expand-alt"></i> Custom Resolution
+            </a>
+            <a href="preset.html" class="menu-item">
+                <i class="fas fa-gamepad"></i> Preset Gaming
+            </a>
+            <a href="dpi.html" class="menu-item">
+                <i class="fas fa-crosshairs"></i> DPI Tools
+            </a>
+            <a href="adb.html" class="menu-item">
+                <i class="fas fa-terminal"></i> ADB Helper
+            </a>
+            <a href="android.html" class="menu-item">
+                <i class="fab fa-android"></i> Android Auto
+            </a>
+            <a href="about.html" class="menu-item">
+                <i class="fas fa-info-circle"></i> About
+            </a>
+            <button onclick="toggleMenu()" class="menu-close">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="hero">
+            <h1><i class="fas fa-mobile-alt"></i> Reso & DPI Tool</h1>
+            <p>ADB helper untuk custom resolution & DPI setting tanpa root</p>
+        </div>
+
+        <div class="card-grid">
+            <a href="reso.html" class="feature-card">
+                <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                    <i class="fas fa-expand-alt"></i>
+                </div>
+                <h3>Custom Resolution</h3>
+                <p>Set custom screen resolution untuk device Android</p>
+                <span class="card-badge">Hot</span>
+            </a>
+
+            <a href="preset.html" class="feature-card">
+                <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3>Preset Gaming</h3>
+                <p>Optimized presets untuk PUBG, ML, FF, FF Max</p>
+                <span class="card-badge">Popular</span>
+            </a>
+
+            <a href="dpi.html" class="feature-card">
+                <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <i class="fas fa-crosshairs"></i>
+                </div>
+                <h3>DPI Tools</h3>
+                <p>Calculator & tools untuk optimal DPI setting</p>
+            </a>
+
+            <a href="adb.html" class="feature-card">
+                <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <h3>ADB Helper</h3>
+                <p>Kumpulan command ADB yang berguna</p>
+            </a>
+
+            <a href="android.html" class="feature-card">
+                <div class="card-icon" style="background: linear-gradient(135deg, #3ddc84, #34a853);">
+                    <i class="fab fa-android"></i>
+                </div>
+                <h3>Android Auto Apply</h3>
+                <p>Run ADB langsung di Android tanpa PC</p>
+            </a>
+
+            <a href="about.html" class="feature-card">
+                <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3>About & Help</h3>
+                <p>Info aplikasi dan cara penggunaan</p>
+            </a>
+        </div>
+
+        <div class="quick-tips">
+            <h3><i class="fas fa-lightbulb"></i> Quick Tips</h3>
+            <div class="tips-grid">
+                <div class="tip">
+                    <i class="fas fa-laptop-code"></i>
+                    <p>Butuh PC dengan ADB untuk pertama kali setup</p>
+                </div>
+                <div class="tip">
+                    <i class="fas fa-mobile-alt"></i>
+                    <p>Aktifkan USB Debugging di Developer Options</p>
+                </div>
+                <div class="tip">
+                    <i class="fas fa-redo"></i>
+                    <p>Reset ke default jika ada masalah: <code>wm size reset</code></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Reso & DPI Tool v1.0.0 • Made with <i class="fas fa-heart" style="color: #ef4444;"></i></p>
+        <p class="footer-links">
+            <a href="about.html">About</a> • 
+            <a href="#" onclick="showHelp()">Help</a> • 
+            <a href="https://github.com/Sandishaputraa/bost.apk" target="_blank">GitHub</a>
+        </p>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        // Menu toggle
+        function toggleMenu() {
+            const menu = document.getElementById('menuOverlay');
+            menu.classList.toggle('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('menuOverlay');
+            const menuBtn = document.querySelector('.menu');
+            if (menu.classList.contains('active') && 
+                !menu.contains(e.target) && 
+                e.target !== menuBtn) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // Show help modal
+        function showHelp() {
+            alert('📱 Reso & DPI Tool\n\nUntuk menggunakan aplikasi ini:\n1. Aktifkan USB Debugging di device Android\n2. Hubungkan ke PC via USB\n3. Gunakan tools sesuai kebutuhan\n\nButuh bantuan? Kunjungi halaman About.');
+        }
+    </script>
+</body>
+</html>
