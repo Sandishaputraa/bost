@@ -1088,3 +1088,170 @@ window.downloadFile = downloadFile;
 
 console.log('✅ All app functions loaded successfully');t
        
+
+// ============================================
+// SINGLE TOGGLE SWITCH SYSTEM
+// ============================================
+
+class ToggleSwitch {
+    constructor() {
+        this.isOn = false;
+        this.init();
+    }
+    
+    init() {
+        // Load saved state
+        this.isOn = localStorage.getItem('toggleState') === 'true';
+        
+        // Create toggles for all pages
+        this.createToggles();
+    }
+    
+    createToggles() {
+        // Find all places where toggle should be
+        const targets = document.querySelectorAll('.toggle-target, .input-group, .btn-group');
+        
+        targets.forEach(target => {
+            if (target.querySelector('.single-toggle')) return;
+            
+            const toggleHTML = `
+                <div class="action-grid">
+                    <div class="single-toggle">
+                        <div class="toggle-track ${this.isOn ? 'on' : 'off'}">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <button class="apply-btn" onclick="window.toggleSystem.applyCurrent()">
+                        <i class="fas fa-rocket"></i> Apply
+                    </button>
+                </div>
+            `;
+            
+            target.insertAdjacentHTML('afterend', toggleHTML);
+        });
+        
+        // Add click listeners
+        document.querySelectorAll('.toggle-track').forEach(track => {
+            track.addEventListener('click', (e) => this.toggle(e.currentTarget));
+        });
+    }
+    
+    toggle(trackElement) {
+        // Toggle state
+        this.isOn = !this.isOn;
+        
+        // Update UI
+        trackElement.classList.toggle('on');
+        trackElement.classList.toggle('off');
+        
+        // Animate slider
+        const slider = trackElement.querySelector('.toggle-slider');
+        slider.classList.add('moving');
+        setTimeout(() => slider.classList.remove('moving'), 300);
+        
+        // Save state
+        localStorage.setItem('toggleState', this.isOn);
+        
+        // If auto-apply is on, apply immediately
+        if (this.isOn) {
+            this.applyCurrent();
+        }
+    }
+    
+    applyCurrent() {
+        // Get current command based on page
+        const command = this.getCurrentCommand();
+        
+        if (!command) {
+            showNotification('❌ No command to apply', 'error');
+            return;
+        }
+        
+        // Execute via preferred method
+        this.executeCommand(command);
+    }
+    
+    getCurrentCommand() {
+        // Detect which page we're on and get command
+        const path = window.location.pathname;
+        
+        if (path.includes('reso.html')) {
+            return this.getResolutionCommand();
+        } else if (path.includes('dpi.html')) {
+            return this.getDpiCommand();
+        } else if (path.includes('preset.html')) {
+            return this.getPresetCommand();
+        }
+        
+        return null;
+    }
+    
+    getResolutionCommand() {
+        const width = document.getElementById('lebar')?.value;
+        const height = document.getElementById('tinggi')?.value;
+        
+        if (!width || !height) {
+            showNotification('❌ Enter width and height', 'error');
+            return null;
+        }
+        
+        return `adb shell wm size ${width}x${height}`;
+    }
+    
+    getDpiCommand() {
+        const dpi = document.getElementById('resultDpi')?.textContent.match(/\d+/)?.[0] ||
+                   document.querySelector('.dpi-value')?.textContent.match(/\d+/)?.[0];
+        
+        if (!dpi) {
+            showNotification('❌ Calculate DPI first', 'error');
+            return null;
+        }
+        
+        return `adb shell wm density ${dpi}`;
+    }
+    
+    executeCommand(command) {
+        // Try different execution methods
+        const methods = [
+            () => this.viaTermux(command),
+            () => this.viaLadb(command),
+            () => this.copyToClipboard(command)
+        ];
+        
+        // Try each method until one works
+        for (const method of methods) {
+            try {
+                method();
+                showNotification('✅ Command applied', 'success');
+                break;
+            } catch (e) {
+                continue;
+            }
+        }
+    }
+    
+    viaTermux(command) {
+        window.open(`termux://execute?cmd=${encodeURIComponent(command)}`, '_blank');
+    }
+    
+    viaLadb(command) {
+        window.open(`ladb://command?cmd=${encodeURIComponent(command)}`, '_blank');
+    }
+    
+    copyToClipboard(command) {
+        navigator.clipboard.writeText(command);
+        showNotification('📋 Copied! Paste in terminal', 'info');
+    }
+}
+
+// Initialize and make global
+window.toggleSystem = new ToggleSwitch();
+
+// Auto-init on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.toggleSystem.init();
+    });
+} else {
+    window.toggleSystem.init();
+}

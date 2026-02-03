@@ -6,6 +6,7 @@
     <title>Android Auto Apply - Reso & DPI Tool</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="topbar">
@@ -74,11 +75,9 @@
                     <textarea id="androidOutput" readonly placeholder="Script akan muncul di sini..."></textarea>
                 </div>
                 
-                <div class="btn-group mt-2">
-                    <button id="generateScriptBtn" class="btn-primary" onclick="generateAndroidScript()">
+                <div class="toggle-target mt-2">
                         <i class="fas fa-download"></i> Generate Script
                     </button>
-                    <button id="copyAndroidBtn" class="btn-success" onclick="copyAndroidScript()">
                         <i class="fas fa-copy"></i> Copy Script
                     </button>
                 </div>
@@ -145,7 +144,7 @@
             <!-- Download Links -->
             <div class="quick-tips mt-4">
                 <h3><i class="fas fa-download"></i> Download Links</h3>
-                <div class="btn-group">
+                <div class="toggle-target">
                     <button class="btn-secondary" onclick="window.open('https://f-droid.org/en/packages/com.termux/', '_blank')">
                         <i class="fas fa-download"></i> Termux (F-Droid)
                     </button>
@@ -185,5 +184,6 @@
             margin: 0;
         }
     </style>
+    <script src="app.js"></script>
 </body>
 </html>

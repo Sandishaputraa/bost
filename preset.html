@@ -6,6 +6,7 @@
     <title>Preset Gaming - Reso & DPI Tool</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="topbar">
@@ -139,8 +140,7 @@
                     <textarea id="presetOutput" readonly placeholder="Command akan muncul di sini..."></textarea>
                 </div>
                 
-                <div class="btn-group">
-                    <button id="copyPresetBtn" class="btn-success" onclick="copyPresetCommand()">
+                <div class="toggle-target">
                         <i class="fas fa-copy"></i> Copy Command
                     </button>
                     <button class="btn-secondary" onclick="clearOutput()">
@@ -179,6 +179,7 @@
         </div>
     </main>
 
+    <script src="app.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
