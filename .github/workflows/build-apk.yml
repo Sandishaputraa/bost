@@ -24,16 +24,17 @@ jobs:
         # Sync Capacitor
         npx cap sync
         
-        # Build
+        # Build Android APK
         cd android
         chmod +x gradlew
         ./gradlew assembleDebug
         
-        # List APKs
+        # Show generated APK
+        echo "📦 Generated APK:"
         find . -name "*.apk" -type f
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: bost-app
-        path: android/app/build/outputs/apk/debug/*.apk
+        name: bost-tool-apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
