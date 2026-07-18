@@ -13,6 +13,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 import rikka.shizuku.Shizuku;
+import com.sandishaputra.bost.BuildConfig;
 
 @CapacitorPlugin(name = "ShizukuPlugin")
 public class ShizukuPlugin extends Plugin {

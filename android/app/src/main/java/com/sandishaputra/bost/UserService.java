@@ -1,7 +1,6 @@
 package com.sandishaputra.bost;
 
 import android.content.Context;
-import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.Keep;
@@ -11,28 +10,13 @@ import java.io.InputStreamReader;
 
 public class UserService extends IUserService.Stub {
 
-    public UserService() {
-        Log.i("UserService", "constructor");
-    }
+    public UserService() {}
 
     @Keep
-    public UserService(Context context) {
-        Log.i("UserService", "constructor with Context: " + context);
-    }
+    public UserService(Context context) {}
 
     @Override
-    public void destroy() {
-        Log.i("UserService", "destroy");
-        System.exit(0);
-    }
-
-    @Override
-    public void exit() {
-        destroy();
-    }
-
-    @Override
-    public String executeCommand(String command) throws RemoteException {
+    public String executeCommand(String command) {
 
         try {
 
@@ -40,11 +24,15 @@ public class UserService extends IUserService.Stub {
                     new String[]{"sh", "-c", command}
             );
 
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream())
-            );
+            BufferedReader reader =
+                    new BufferedReader(
+                            new InputStreamReader(
+                                    process.getInputStream()
+                            )
+                    );
 
             StringBuilder output = new StringBuilder();
+
             String line;
 
             while ((line = reader.readLine()) != null) {
@@ -56,7 +44,13 @@ public class UserService extends IUserService.Stub {
             return output.toString().trim();
 
         } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
+            return e.toString();
         }
+    }
+
+    @Override
+    public void exit() {
+        Log.i("UserService", "exit");
+        System.exit(0);
     }
 }
