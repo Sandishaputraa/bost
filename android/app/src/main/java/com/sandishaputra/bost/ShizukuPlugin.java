@@ -1,7 +1,10 @@
 package com.sandishaputra.bost;
 
-
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -9,405 +12,188 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-
-import moe.shizuku.api.Shizuku;
-
-
+import rikka.shizuku.Shizuku;
 
 @CapacitorPlugin(name = "ShizukuPlugin")
 public class ShizukuPlugin extends Plugin {
 
-
-
     private static final int REQUEST_CODE = 1001;
 
+    private PluginCall permissionCall;
+    private IUserService userService;
 
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            userService = IUserService.Stub.asInterface(service);
+        }
 
-    @PluginMethod
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            userService = null;
+        }
+    };
+
+    private final Shizuku.UserServiceArgs userServiceArgs =
+            new Shizuku.UserServiceArgs(
+                    new ComponentName(
+                            BuildConfig.APPLICATION_ID,
+                            UserService.class.getName()
+                    )
+            )
+                    .daemon(false)
+                    .processNameSuffix("service")
+                    .debuggable(BuildConfig.DEBUG)
+                    .version(BuildConfig.VERSION_CODE);
+
+    private void bindService() {
+
+        if (userService != null) {
+            return;
+        }
+
+        Shizuku.bindUserService(
+                userServiceArgs,
+                serviceConnection
+        );
+    }
+      @PluginMethod
     public void checkStatus(PluginCall call) {
 
+        JSObject result = new JSObject();
 
-        JSObject result =
-                new JSObject();
+        boolean available = Shizuku.pingBinder();
+        boolean permission = false;
 
+        if (available) {
+            permission = Shizuku.checkSelfPermission()
+                    == PackageManager.PERMISSION_GRANTED;
 
-        boolean available =
-                false;
-
-
-        boolean permission =
-                false;
-
-
-
-        try {
-
-
-            available =
-                    Shizuku.pingBinder();
-
-
-
-            if (available) {
-
-
-                permission =
-                        Shizuku.checkSelfPermission()
-                        == PackageManager.PERMISSION_GRANTED;
-
-
+            if (permission) {
+                bindService();
             }
-
-
         }
 
-        catch (Exception e) {
-
-
-            available = false;
-            permission = false;
-
-
-        }
-
-
-
-
-        result.put(
-                "available",
-                available
-        );
-
-
-        result.put(
-                "permission",
-                permission
-        );
-
-
+        result.put("available", available);
+        result.put("permission", permission);
 
         call.resolve(result);
-
-
     }
-
-
-
-
-
-
 
     @PluginMethod
     public void requestPermission(PluginCall call) {
 
-
-
         if (!Shizuku.pingBinder()) {
-
-
-            call.reject(
-                    "Shizuku belum aktif"
-            );
-
-
+            call.reject("Shizuku belum aktif");
             return;
-
         }
 
+        if (Shizuku.checkSelfPermission()
+                == PackageManager.PERMISSION_GRANTED) {
 
+            bindService();
 
-
-        if (
-            Shizuku.checkSelfPermission()
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-
-
-            JSObject result =
-                    new JSObject();
-
-
-            result.put(
-                    "granted",
-                    true
-            );
-
-
+            JSObject result = new JSObject();
+            result.put("granted", true);
             call.resolve(result);
-
-
             return;
-
-
         }
 
+        permissionCall = call;
 
-
-
-
-        Shizuku.addRequestPermissionResultListener(
+        Shizuku.OnRequestPermissionResultListener listener =
                 new Shizuku.OnRequestPermissionResultListener() {
 
+            @Override
+            public void onRequestPermissionResult(
+                    int requestCode,
+                    int grantResult
+            ) {
 
-                    @Override
-                    public void onRequestPermissionResult(
-                            int requestCode,
-                            int grantResult
-                    ) {
-
-
-                        if (requestCode == REQUEST_CODE) {
-
-
-                            JSObject result =
-                                    new JSObject();
-
-
-                            result.put(
-                                    "granted",
-                                    grantResult
-                                    ==
-                                    PackageManager.PERMISSION_GRANTED
-                            );
-
-
-                            call.resolve(result);
-
-
-
-                            Shizuku
-                            .removeRequestPermissionResultListener(this);
-
-
-                        }
-
-
-                    }
-
+                if (requestCode != REQUEST_CODE) {
+                    return;
                 }
-        );
 
+                Shizuku.removeRequestPermissionResultListener(this);
 
+                JSObject result = new JSObject();
 
+                boolean granted =
+                        grantResult == PackageManager.PERMISSION_GRANTED;
 
-        Shizuku.requestPermission(
-                REQUEST_CODE
-        );
+                if (granted) {
+                    bindService();
+                }
 
+                result.put("granted", granted);
 
+                if (permissionCall != null) {
+                    permissionCall.resolve(result);
+                    permissionCall = null;
+                }
+            }
+        };
+
+        Shizuku.addRequestPermissionResultListener(listener);
+        Shizuku.requestPermission(REQUEST_CODE);
     }
-
-
-
-
-
-
-
-    @PluginMethod
+      @PluginMethod
     public void executeCommand(PluginCall call) {
 
+        String command = call.getString("command");
 
-
-        String command =
-                call.getString(
-                        "command"
-                );
-
-
-
-        if (command == null ||
-            command.trim().isEmpty()
-        ) {
-
-
-            call.reject(
-                    "Command kosong"
-            );
-
-
+        if (command == null || command.trim().isEmpty()) {
+            call.reject("Command kosong");
             return;
-
-
         }
-
-
-
-
 
         if (!Shizuku.pingBinder()) {
-
-
-            call.reject(
-                    "Shizuku tidak aktif"
-            );
-
-
+            call.reject("Shizuku belum aktif");
             return;
-
-
         }
 
-
-
-
-
-        if (
-            Shizuku.checkSelfPermission()
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-
-
-            call.reject(
-                    "Permission Shizuku belum diberikan"
-            );
-
-
+        if (Shizuku.checkSelfPermission()
+                != PackageManager.PERMISSION_GRANTED) {
+            call.reject("Permission Shizuku belum diberikan");
             return;
-
-
         }
 
+        bindService();
 
-
-
+        if (userService == null) {
+            call.reject("UserService belum terhubung");
+            return;
+        }
 
         try {
 
+            String output = userService.executeCommand(command);
 
-
-            Process process =
-                    Shizuku.newProcess(
-                            new String[]{
-                                    "sh",
-                                    "-c",
-                                    command
-                            },
-                            null,
-                            null
-                    );
-
-
-
-
-            BufferedReader outputReader =
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    process.getInputStream()
-                            )
-                    );
-
-
-
-            BufferedReader errorReader =
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    process.getErrorStream()
-                            )
-                    );
-
-
-
-
-            StringBuilder output =
-                    new StringBuilder();
-
-
-
-            String line;
-
-
-
-            while(
-                (line = outputReader.readLine())
-                != null
-            ) {
-
-
-                output.append(line)
-                        .append("\n");
-
-
-            }
-
-
-
-
-
-            StringBuilder error =
-                    new StringBuilder();
-
-
-
-            while(
-                (line = errorReader.readLine())
-                != null
-            ) {
-
-
-                error.append(line)
-                        .append("\n");
-
-
-            }
-
-
-
-
-
-            int exitCode =
-                    process.waitFor();
-
-
-
-
-            JSObject result =
-                    new JSObject();
-
-
-
-            result.put(
-                    "exitCode",
-                    exitCode
-            );
-
-
-            result.put(
-                    "output",
-                    output.toString().trim()
-            );
-
-
-            result.put(
-                    "error",
-                    error.toString().trim()
-            );
-
-
-
+            JSObject result = new JSObject();
+            result.put("success", true);
+            result.put("output", output);
 
             call.resolve(result);
 
-
-
+        } catch (RemoteException e) {
+            call.reject(e.getMessage());
         }
-
-        catch(Exception e) {
-
-
-            call.reject(
-                    "Eksekusi gagal: "
-                    + e.getMessage()
-            );
-
-
-        }
-
-
     }
+      @Override
+    protected void handleOnDestroy() {
 
+        try {
+            Shizuku.unbindUserService(
+                    userServiceArgs,
+                    serviceConnection,
+                    true
+            );
+        } catch (Throwable ignored) {
+        }
 
+        userService = null;
+
+        super.handleOnDestroy();
+    }
 }
